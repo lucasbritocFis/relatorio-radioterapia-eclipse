@@ -49,35 +49,46 @@ def desenhar_retangulos(c):
     c.roundRect(55, 370, 535, 20, radius=5, fill=1, stroke=0)
     c.roundRect(55, 127, 535, 18, radius=5, fill=1, stroke=0)
 
-# --- 2. GERADOR DO PDF NA MEMÓRIA ---
+# --- 1. FUNÇÃO PARA INSERIR LOGO (Puxando da pasta assets) ---
+def inserir_logo_no_relatorio(c):
+    try:
+        # Posições originais que você usava
+        posicao_img_x = 435
+        posicao_img_y = 720
+        largura_img = 150 # Ajustei levemente para caber melhor
+        altura_img = 50
+        c.drawImage(LOGO_AMERICAS, posicao_img_x, posicao_img_y, largura_img, altura_img, mask='auto')
+    except:
+        st.warning("⚠️ Logo não encontrada na pasta assets. Pulando inserção da imagem.")
+
+# --- 2. GERADOR DO PDF NA MEMÓRIA (Atualizado com a Logo) ---
 def gerar_pdf_relatorio():
-    """Gera o PDF na Memória RAM e retorna o arquivo em bytes"""
     buffer_pdf = io.BytesIO()
-    
-    # Apontamos o Canvas para o 'buffer' em vez de um arquivo no disco
     c_relatorio = canvas.Canvas(buffer_pdf, pagesize=letter)
     
-    # Desenhamos os retângulos
+    # Adicionamos a logo e os retângulos
+    inserir_logo_no_relatorio(c_relatorio)
     desenhar_retangulos(c_relatorio)
     
-    # Salva o arquivo na memória
     c_relatorio.save()
-    
-    # Volta o "ponteiro" da leitura para o começo do arquivo
     buffer_pdf.seek(0)
     return buffer_pdf
 
-# --- 3. FUNÇÃO DE PREVIEW NO STREAMLIT ---
+# --- 3. NOVA FUNÇÃO DE PREVIEW (Transforma PDF em Imagem) ---
 def mostrar_preview_pdf(buffer_pdf):
-    """Lê os bytes do PDF e mostra um visualizador dentro do site"""
-    # Converte os bytes do PDF para o formato Base64
-    base64_pdf = base64.b64encode(buffer_pdf.getvalue()).decode('utf-8')
+    # O fitz abre o PDF que acabamos de gerar na memória
+    doc = fitz.open(stream=buffer_pdf.read(), filetype="pdf")
+    pagina = doc.load_page(0) # Carrega a primeira página
     
-    # Cria o visualizador usando HTML
-    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf"></iframe>'
+    # Transforma a página em uma imagem (pixmap)
+    pix = pagina.get_pixmap(matrix=fitz.Matrix(2, 2)) # Matrix(2,2) aumenta a qualidade
+    img_data = pix.tobytes("png")
     
-    # Renderiza o HTML no Streamlit
-    st.markdown(pdf_display, unsafe_allow_html=True)
+    # Exibe a imagem no Streamlit de forma elegante
+    st.image(img_data, caption="Pré-visualização do Relatório", use_container_width=True)
+    
+    # Reseta o buffer para o botão de download poder ler de novo
+    buffer_pdf.seek(0)
 
 # 4. Interface do Usuário: Botões de Upload
 st.subheader("1. Importação dos Arquivos")
