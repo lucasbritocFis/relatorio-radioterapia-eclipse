@@ -1,9 +1,10 @@
-
 import streamlit as st
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import io
 import base64
+import fitz        
+import pdfplumber  
 
 # 1. Configuração inicial da página web
 st.set_page_config(page_title="Gerador de Relatórios de Planejamentos Eclipse", layout="centered")
