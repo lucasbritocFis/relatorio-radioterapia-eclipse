@@ -67,16 +67,29 @@ def desenhar_retangulos(c):
 
 def desenhar_informacoes_paciente(c, dados):
     c.setFillColor(colors.black)
-    c.setFont("Helvetica-Bold", 9)
     
-    # Textos do cabeçalho
-    c.drawString(60, 705, f"Nome: {dados['Nome']}")
-    c.drawString(60, 685, f"Prontuário: {dados['Prontuário']}")
-    c.drawString(60, 665, f"Hospital: {dados['Hospital']}")
+    # Lista de campos para facilitar a manutenção (Clean Code!)
+    campos = [
+        ("Nome: ", dados['Nome'], 705),
+        ("Prontuário: ", dados['Prontuário'], 685),
+        ("Hospital: ", dados['Hospital'], 665)
+    ]
+
+    for label, valor, y in campos:
+        # 1. Desenha o rótulo em Negrito
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(60, y, label)
+        
+        # 2. Calcula o comprimento do rótulo para saber onde começar o valor
+        largura_label = c.stringWidth(label, "Helvetica-Bold", 9)
+        
+        # 3. Desenha o valor em fonte Normal (sem negrito)
+        c.setFont("Helvetica", 9)
+        c.drawString(60 + largura_label, y, valor)
     
-    # Título do primeiro retângulo
+    # Título do primeiro retângulo (Mantém negrito)
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(60, 617, "DESLOCAMENTO DA MESA (SETUP)")
+    c.drawString(60, 617, "DESLOCAMENTO DA MESA (SETUP)")"DESLOCAMENTO DA MESA (SETUP)")
 
 # --- GERADOR DO PDF NA MEMÓRIA ---
 def gerar_pdf_relatorio(dados_paciente):
