@@ -148,15 +148,23 @@ pdfs_imagens = st.file_uploader("Upload dos PDFs de Imagens", type=["pdf"], acce
 st.subheader("2. Processamento")
 
 # Usamos session_state para manter os dados na tela entre cliques de botões
+# Dentro da parte de Processamento
 if pdf_relatorio and pdf_qa:
     if st.button("Extrair Dados do Paciente"):
         with st.spinner("Lendo PDFs..."):
+            # 1. Primeiro extraímos o texto
             texto_rel = extrair_texto_pdf_relatorio(pdf_relatorio)
-            # GERA O TÍTULO DINÂMICO AQUI
+            
+            # 2. Criamos o dicionário 'dados' chamando a sua função
+            # É AQUI que a variável 'dados' nasce!
+            dados = extrair_dados_basicos(texto_rel)
+            
+            # 3. AGORA você pode adicionar o título a ele sem erro
             dados['Titulo'] = gerar_cabecalho_pdf_relatorio_de_tratamento(texto_rel)
-            # Guardamos os dados extraídos no "estado" do site
-            st.session_state.dados_paciente = extrair_dados_basicos(texto_rel)
-            st.success("Dados extraídos!")
+            
+            # 4. Salva no session_state para o Streamlit "lembrar" nas próximas recargas
+            st.session_state.dados_paciente = dados
+            st.success("Dados e Título extraídos com sucesso!")
 
 # Se os dados já foram extraídos, mostramos as opções de geração
 if 'dados_paciente' in st.session_state:
