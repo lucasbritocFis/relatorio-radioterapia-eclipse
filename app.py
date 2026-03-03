@@ -54,7 +54,7 @@ def extrair_dados_basicos(texto):
 # --- FUNÇÕES DE DESENHO DO PDF ---
 def inserir_logo_no_relatorio(c):
     try:
-        c.drawImage(LOGO_AMERICAS, 435, 720, 150, 50, mask='auto')
+        c.drawImage(LOGO_AMERICAS, 480, 735, 110, 40, mask='auto')
     except:
         st.warning("⚠️ Logo não encontrada na pasta assets.")
 
