@@ -91,12 +91,37 @@ def desenhar_informacoes_paciente(c, dados):
     c.setFont("Helvetica-Bold", 10)
     c.drawString(60, 617, "DESLOCAMENTO DA MESA (SETUP)")
 
+# --- Lógica de Formatação do Título (Eclipse) ---
+def gerar_cabecalho_pdf_relatorio_de_tratamento(texto):
+    # Limpa espaços extras e pega a primeira parte antes do hífen
+    texto = re.sub(r'\s+', ' ', texto).split("-")[0].strip()
+    # Remove espaços entre iniciais (ex: J B C -> JBC)
+    texto = re.sub(r'(\b\w) (?=\w\b)', r'\1', texto)
+    # Formatação posicional específica do seu layout
+    cabecalho = f"{texto[:9]} {texto[9:11]} {texto[11:16]} {texto[16:18]} {texto[18:28]}"
+    return cabecalho
+
+# --- Desenho do Título no PDF ---
+def inserir_titulo_no_relatorio(c, texto_do_titulo):
+    c.setFillColor(colors.black)
+    c.setFont("Helvetica-Bold", 16)
+    # Posições enviadas por você
+    c.drawString(60, 740, texto_do_titulo)
+    # Linha decorativa abaixo do título
+    c.rect(58, 725, 530, 2, fill=1, stroke=0)
+
 # --- GERADOR DO PDF NA MEMÓRIA ---
 def gerar_pdf_relatorio(dados_paciente):
     buffer_pdf = io.BytesIO()
     c_relatorio = canvas.Canvas(buffer_pdf, pagesize=letter)
     
+    # 1. Desenha o Título e a Linha (no topo)
+    inserir_titulo_no_relatorio(c_relatorio, dados_paciente['Titulo'])
+    
+    # 2. Insere a Logo (abaixo ou ao lado do título conforme suas coords)
     inserir_logo_no_relatorio(c_relatorio)
+    
+    # 3. Restante do layout
     desenhar_retangulos(c_relatorio)
     desenhar_informacoes_paciente(c_relatorio, dados_paciente)
     
@@ -127,6 +152,8 @@ if pdf_relatorio and pdf_qa:
     if st.button("Extrair Dados do Paciente"):
         with st.spinner("Lendo PDFs..."):
             texto_rel = extrair_texto_pdf_relatorio(pdf_relatorio)
+            # GERA O TÍTULO DINÂMICO AQUI
+            dados['Titulo'] = gerar_cabecalho_pdf_relatorio_de_tratamento(texto_rel)
             # Guardamos os dados extraídos no "estado" do site
             st.session_state.dados_paciente = extrair_dados_basicos(texto_rel)
             st.success("Dados extraídos!")
