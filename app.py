@@ -89,7 +89,7 @@ def desenhar_informacoes_paciente(c, dados):
     
     # Título do primeiro retângulo (Mantém negrito)
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(60, 617, "DESLOCAMENTO DA MESA (SETUP)")"DESLOCAMENTO DA MESA (SETUP)")
+    c.drawString(60, 617, "DESLOCAMENTO DA MESA (SETUP)")
 
 # --- GERADOR DO PDF NA MEMÓRIA ---
 def gerar_pdf_relatorio(dados_paciente):
